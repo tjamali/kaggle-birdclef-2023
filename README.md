@@ -4,7 +4,7 @@
 
 ## TL;DR
 
-This repository contains a reproducible pipeline for the **BirdCLEF 2023** Kaggle competition: Train a sound event detection model to identify bird species from long environmental audio recordings (BirdCLEF 2023). Audio is converted into mel-spectrograms, augmented/mixed (CutMix/MixUp, noise, contrast), and fed into attentive deep models; evaluation uses padded class-wise average precision (cmap) to handle imbalance. 
+This repository contains a reproducible pipeline for the **BirdCLEF 2023** Kaggle competition: Train a sound event detection model to identify bird species from long environmental audio recordings. Audio is converted into mel-spectrograms, augmented/mixed (CutMix/MixUp, noise, contrast), and fed into attentive deep models; evaluation uses padded class-wise average precision (cmap) to handle imbalance. 
 
 ### Dataset expectations / minimal setup
 
