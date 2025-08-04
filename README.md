@@ -70,8 +70,6 @@ Install packages with:
 pip install -r requirements.txt
 ```
 
-> **Note:** Mixed precision is optionally used via PyTorch’s native AMP (`torch.cuda.amp`); no separate Apex dependency is needed. If you intend to use GPU builds of `torch`, replace the `torch` line with an appropriate CUDA-compatible wheel from the official PyTorch install instructions.
-
 
 ## 🧪 Configuration
 
