@@ -1,13 +1,21 @@
-Here is a proposed `README.md` tailored to your project, reflecting the relationships between the files, training flow, and practical instructions for someone cloning the GitHub repo:
-
-```markdown
 # BirdCLEF 2023 Audio Classification / Sound Event Detection
 
-This repository contains a reproducible pipeline for the **BirdCLEF 2023** Kaggle competition: identifying bird species from audio recordings by training deep models on mel-spectrogram representations. The codebase is structured around audio preprocessing, data splitting, augmentation, model definition, training, checkpointing, and evaluation.
+[![Kaggle BirdCLEF 2023](https://img.shields.io/badge/Kaggle-BirdCLEF_2023-blue?logo=kaggle)](https://www.kaggle.com/competitions/birdclef-2023) [![Status](https://img.shields.io/badge/status-experimental-yellow)]() [![License](https://img.shields.io/badge/license-MIT-green)]()
+
+## TL;DR
+
+This repository contains a reproducible pipeline for the **BirdCLEF 2023** Kaggle competition: Train a sound event detection model to identify bird species from long environmental audio recordings (BirdCLEF 2023). Audio is converted into mel-spectrograms, augmented/mixed (CutMix/MixUp, noise, contrast), and fed into attentive deep models; evaluation uses padded class-wise average precision (cmap) to handle imbalance. 
+
+### Dataset expectations / minimal setup
+
+To run training end-to-end you need the official BirdCLEF 2023 data arranged as follows:
+
+1. **Raw audio files** (`*.ogg`): organized by primary label, e.g.:  
+   `data/train_audio/<primary_label>/*.ogg` and any extras under `additional_audios/`. These are preprocessed into fixed-length NumPy arrays via `prepare_audios.py` and saved to `train_np/<primary_label>/<filename>.npy`.   
+2. **Metadata**: the provided `train_metadata.csv` is merged with the generated `.npy` paths in `split_data.py`, secondary labels are cleaned, combined label strings computed, and stratified k-fold splits assigned (based on `primary_label`), producing `train.csv` with a `kfold` column.   
+3. **Workflow**: run `prepare_audios.py` → `split_data.py` → `train.py` to start training. The model builds composite spectrograms with primary/background mixing and trains with label smoothing and adaptive scheduling. 
 
 ## 📦 Repository Overview / File Graph
-
-```
 
 prepare\_audios.py           # ingest and preprocess raw .ogg -> numpy arrays
 split\_data.py              # merge metadata, assign stratified k-folds
@@ -21,8 +29,6 @@ train.py                 # main training loop tying everything together
 plot\_loss\_metric.py       # visualization of loss / metrics over epochs
 configs.py               # centralized experiment configuration & logger setup
 imports.py               # shared lower-level imports & version helper (used transitively)
-
-````
 
 ### High-level Flow
 
@@ -39,33 +45,33 @@ imports.py               # shared lower-level imports & version helper (used tra
 
 ## ⚙️ Setup & Dependencies
 
-You can create a Python environment and install required packages. A sample `requirements.txt` might include:
+This project relies on specific versions of its core Python libraries to ensure reproducibility. The required packages (with pinned versions) exist in requirements.txt:
 
 ```text
-numpy
-pandas
-scikit-learn
-torch
-timm
-transformers
-librosa
-soundfile
-torchlibrosa
-albumentations
-matplotlib
-joblib
-tqdm
-colorednoise
-path  # the `path` PyPI package, not pathlib
+numpy==1.21.6
+pandas==1.3.5
+scikit-learn==1.0.2
+torch==1.13.0
+timm==0.6.13
+transformers==4.27.4
+librosa==0.10.0.post2
+soundfile==0.11.0
+torchlibrosa==0.1.0
+albumentations==1.3.0
+matplotlib==3.5.3
+joblib==1.2.0
+tqdm==4.64.1
+colorednoise==2.1.0
 ````
 
-Install via:
+Install packages with:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-> **Note:** Mixed precision is optionally used (`apex`-style via `torch.cuda.amp`). No external Apex dependency is required because PyTorch's native AMP is used.
+> **Note:** Mixed precision is optionally used via PyTorch’s native AMP (`torch.cuda.amp`); no separate Apex dependency is needed. If you intend to use GPU builds of `torch`, replace the `torch` line with an appropriate CUDA-compatible wheel from the official PyTorch install instructions.
+
 
 ## 🧪 Configuration
 
@@ -163,12 +169,6 @@ This plots:
 * Training/validation loss.
 * `cmap_pad_5` score (padded class-wise average precision).
 
-## 🧩 Miscellaneous
-
-* The project avoids wildcard imports in updated files; every module imports only what it needs (improves readability and static analysis).
-* The target vector construction in `WaveformDataset` distinguishes primary vs. background birds with different weights.
-* The `metrics.py` defines a custom padded average precision (`padded_cmap`) to stabilize evaluation on imbalanced classes.
-
 ## 🛠 Example Minimal Run
 
 ```python
@@ -204,25 +204,26 @@ run(train_df)
 └── README.md
 ```
 
-## ✔️ Tips & Best Practices
-
-* Always call `configure_logger(config)` early to control verbosity via `config.debug`.
-* Use the saved checkpoint naming convention to trace experiments (epoch, loss, cmap).
-* If changing model/backbone, update `base_model_name` in `configs.py` and potentially adjust input shapes.
-* Avoid modifying the core logic when tuning; adjust via config parameters when possible.
-
-## 🧩 Future Improvements
-
-* Extract experiment parameters to YAML/CLI for easier sweep management.
-* Add unit tests for transformation and dataset logic.
-* Support multi-GPU / distributed training.
-* Export submission pipeline for inference on test set.
-
 ## License
+MIT License
 
-*(Add your license here, e.g., MIT License)*
+Copyright (c) 2023 Tayeb Jamali
 
-```
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-If you’d like, I can also generate a `requirements.txt` automatically, or help you add a `Makefile` / GitHub Actions workflow for training and evaluation. Do you want one of those next?
-```
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
